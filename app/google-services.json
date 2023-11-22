@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1015004114661",
+    "project_id": "papb-project-final",
+    "storage_bucket": "papb-project-final.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1015004114661:android:f37e5e546e0a27cb702e0c",
+        "android_client_info": {
+          "package_name": "maf.mobile.finalprojectpapb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-9-crymJo505YiKMb6XFsUaRIoGvLipc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
