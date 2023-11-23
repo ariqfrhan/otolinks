@@ -1,10 +1,15 @@
-package maf.mobile.finalprojectpapb;
+package maf.mobile.finalprojectpapb.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import android.os.Bundle;
+
+import maf.mobile.finalprojectpapb.ChatFragment;
+import maf.mobile.finalprojectpapb.HomeFragment;
+import maf.mobile.finalprojectpapb.ProfileFragment;
+import maf.mobile.finalprojectpapb.R;
 import maf.mobile.finalprojectpapb.databinding.HomepageBinding;
 
 public class MainActivity extends AppCompatActivity {

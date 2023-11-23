@@ -1,4 +1,4 @@
-package maf.mobile.finalprojectpapb;
+package maf.mobile.finalprojectpapb.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,7 +17,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-import maf.mobile.finalprojectpapb.activity.RegisterActivity;
+import maf.mobile.finalprojectpapb.R;
 
 public class LoginActivity extends AppCompatActivity {
 

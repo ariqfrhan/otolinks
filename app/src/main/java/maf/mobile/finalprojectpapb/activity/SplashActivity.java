@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
-import maf.mobile.finalprojectpapb.LoginActivity;
 import maf.mobile.finalprojectpapb.R;
 
 public class SplashActivity extends AppCompatActivity {
