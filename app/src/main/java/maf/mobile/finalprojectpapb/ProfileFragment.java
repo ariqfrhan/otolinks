@@ -11,8 +11,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import maf.mobile.finalprojectpapb.activity.LoginActivity;
 
@@ -78,6 +82,9 @@ public class ProfileFragment extends Fragment {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         mAuth = FirebaseAuth.getInstance();
+        String userId = user.getUid();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference ref = db.collection("users").document(userId);
 
         etEmail = (EditText) view.findViewById(R.id.etProfileEmail);
         etPhone = (EditText) view.findViewById(R.id.etProfilePhone);
@@ -86,19 +93,43 @@ public class ProfileFragment extends Fragment {
         btSave = (Button) view.findViewById(R.id.btSave);
         btLogout = (Button) view.findViewById(R.id.btLogout);
 
+        getCurrentUser(user, ref);
+
 
         btLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAuth.signOut();
-
-                Intent intent = new Intent(getActivity(), LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                getActivity().finish();
+                signOut();
             }
         });
 
         return view;
+    }
+
+    private void getCurrentUser(FirebaseUser user, DocumentReference ref) {
+        if (user != null) {
+            ref.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.exists()) {
+                        String phone = documentSnapshot.getString("phone");
+
+                        etEmail.setText(user.getEmail());
+                        etUsername.setText(user.getDisplayName());
+                        etPhone.setText(phone);
+                    }
+                }
+            });
+        }
+    }
+
+    private void signOut() {
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.signOut();
+
+        Intent intent = new Intent(getActivity(), LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        getActivity().finish();
     }
 }

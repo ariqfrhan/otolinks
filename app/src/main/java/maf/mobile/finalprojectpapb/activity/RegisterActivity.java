@@ -17,6 +17,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import maf.mobile.finalprojectpapb.R;
 
@@ -66,20 +71,35 @@ public class RegisterActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
-                                        UserProfileChangeRequest profileCreate = new UserProfileChangeRequest.Builder()
-                                                .setDisplayName(username)
-                                                .build();
+                                        FirebaseUser user = mAuth.getCurrentUser();
+                                        String userId = user.getUid();
 
-                                        mAuth.getCurrentUser().updateProfile(profileCreate)
+                                        // Menyimpan data ke Firestore
+                                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                        DocumentReference userRef = db.collection("users").document(userId);
+
+                                        Map<String, Object> userData = new HashMap<>();
+                                        userData.put("username", username);
+                                        userData.put("email", email);
+                                        userData.put("phone", phone);
+
+                                        userRef.set(userData)
                                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {
                                                         if (task.isSuccessful()) {
                                                             showMessage("The account has been created");
+                                                        } else {
+                                                            showMessage("Failed to create account: " + task.getException().getMessage());
                                                         }
                                                     }
                                                 });
 
+                                        UserProfileChangeRequest profileCreate = new UserProfileChangeRequest.Builder()
+                                                .setDisplayName(username)
+                                                .build();
+
+                                        user.updateProfile(profileCreate);
                                         finish();
                                     }else{
                                         showMessage("Failed to create account" + task.getException().getMessage());
