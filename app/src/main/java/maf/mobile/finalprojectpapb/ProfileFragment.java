@@ -232,6 +232,22 @@ public class ProfileFragment extends Fragment {
                 });
             }
         });
+//        StorageReference imagePath = mStorage.child(pickedImg.getLastPathSegment());
+//        imagePath.putFile(pickedImg).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+//            @Override
+//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+//                imagePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//                    @Override
+//                    public void onSuccess(Uri uri) {
+//                        UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
+//                                .setPhotoUri(uri)
+//                                .build();
+//
+//                        currentUser.updateProfile(profileChangeRequest);
+//                    }
+//                });
+//            }
+//        });
     }
 
     private void signOut() {
