@@ -3,6 +3,7 @@ package maf.mobile.finalprojectpapb.activity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -34,6 +35,7 @@ public class RegisterActivity extends AppCompatActivity {
     private Button btRegister;
     private FirebaseAuth mAuth;
     private Button btBack;
+    private Uri defaultImg = Uri.parse("gs://papb-project-final.appspot.com/user_photos/profiledummy.png");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +99,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                                         UserProfileChangeRequest profileCreate = new UserProfileChangeRequest.Builder()
                                                 .setDisplayName(username)
+                                                .setPhotoUri(defaultImg)
                                                 .build();
 
                                         user.updateProfile(profileCreate);

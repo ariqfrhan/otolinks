@@ -35,6 +35,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -89,7 +90,11 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    FirebaseAuth mAuth;
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private String userId = user.getUid();
+    DocumentReference ref = db.collection("users").document(userId);
     private EditText etEmail;
     private EditText etPhone;
     private EditText etUsername;
@@ -102,12 +107,6 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
-
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        mAuth = FirebaseAuth.getInstance();
-        String userId = user.getUid();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference ref = db.collection("users").document(userId);
 
         etEmail = (EditText) view.findViewById(R.id.etProfileEmail);
         etPhone = (EditText) view.findViewById(R.id.etProfilePhone);
@@ -201,7 +200,7 @@ public class ProfileFragment extends Fragment {
         if (user != null) {
             etEmail.setText(user.getEmail());
             etUsername.setText(user.getDisplayName());
-            ivProfile.setImageURI(user.getPhotoUrl());
+            Picasso.get().load(user.getPhotoUrl()).into(ivProfile);
             ref.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -232,22 +231,6 @@ public class ProfileFragment extends Fragment {
                 });
             }
         });
-//        StorageReference imagePath = mStorage.child(pickedImg.getLastPathSegment());
-//        imagePath.putFile(pickedImg).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//            @Override
-//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                imagePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-//                    @Override
-//                    public void onSuccess(Uri uri) {
-//                        UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
-//                                .setPhotoUri(uri)
-//                                .build();
-//
-//                        currentUser.updateProfile(profileChangeRequest);
-//                    }
-//                });
-//            }
-//        });
     }
 
     private void signOut() {
@@ -259,5 +242,4 @@ public class ProfileFragment extends Fragment {
         startActivity(intent);
         getActivity().finish();
     }
-
 }
