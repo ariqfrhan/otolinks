@@ -44,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
     private String url = "https://papb-project-final-default-rtdb.asia-southeast1.firebasedatabase.app/";
     private DatabaseReference firebaseDb;
     private Button btBack;
-    private Uri defaultImg = Uri.parse("gs://papb-project-final.appspot.com/user_photos/profiledummy.png");
+    private Uri defaultImg = Uri.parse("https://firebasestorage.googleapis.com/v0/b/papb-project-final.appspot.com/o/user_photos%2Fprofiledummy.png?alt=media&token=aca2d042-fa77-44ce-ad4d-ba5052160da4");
     private DatabaseReference registerDb;
 
     @Override

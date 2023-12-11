@@ -2,7 +2,7 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="120dp"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_gravity="center"
     app:cardElevation="4dp"
@@ -13,12 +13,14 @@
         android:layout_height="match_parent"
         android:padding="8dp">
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/ivProfileRecycler"
             android:layout_width="42dp"
             android:layout_height="42dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/profiledummy"
+            app:civ_border_width="1dp"
             />
 
         <TextView
@@ -62,6 +64,27 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@android:drawable/ic_menu_delete" />
+
+        <ImageView
+            android:id="@+id/ivPhotoContent"
+            android:visibility="gone"
+            android:layout_width="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_height="180dp"
+            android:adjustViewBounds="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvContentRecycler"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+        <TextView
+            android:id="@+id/tvDateRecycler"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="11/12/23"
+            android:layout_marginStart="12dp"
+            app:layout_constraintStart_toEndOf="@+id/tvProfileRecycler"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

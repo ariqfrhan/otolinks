@@ -9,12 +9,21 @@ public class Post {
     private String content;
     private String contentPhoto;
     private String timestamp;
+    private String postId;
 
-    public Post(String userId, String content, String contentPhoto, String timestamp) {
+    public Post(){
+
+    }
+
+    public Post(String userId, String postId, String content, String contentPhoto, String timestamp) {
         this.userId = userId;
         this.content = content;
         this.contentPhoto = contentPhoto;
         this.timestamp = timestamp;
+    }
+    public String getPostId(){return postId;}
+    public void setPostId(String postId){
+        this.postId = postId;
     }
     public String getUserId() {
         return userId;

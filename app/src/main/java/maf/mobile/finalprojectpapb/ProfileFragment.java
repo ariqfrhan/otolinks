@@ -97,10 +97,8 @@ public class ProfileFragment extends Fragment {
     }
     private String url = "https://papb-project-final-default-rtdb.asia-southeast1.firebasedatabase.app/";
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String userId = user.getUid();
-    DocumentReference ref = db.collection("users").document(userId);
     DatabaseReference dbref = FirebaseDatabase.getInstance(url).getReference();
     private EditText etEmail;
     private EditText etPhone;
