@@ -1,6 +1,17 @@
 package maf.mobile.finalprojectpapb.model;
 
 public class User {
+    public User(){
+
+    }
+    public User(String id, String username, String email, String phone, String imgUrl) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.phone = phone;
+        this.imgUrl = imgUrl;
+    }
+
     private String id;
     private String username;
     private String email;

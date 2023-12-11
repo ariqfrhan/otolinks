@@ -12,12 +12,18 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -25,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import maf.mobile.finalprojectpapb.R;
+import maf.mobile.finalprojectpapb.model.User;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -34,8 +41,11 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText regPhone;
     private Button btRegister;
     private FirebaseAuth mAuth;
+    private String url = "https://papb-project-final-default-rtdb.asia-southeast1.firebasedatabase.app/";
+    private DatabaseReference firebaseDb;
     private Button btBack;
     private Uri defaultImg = Uri.parse("gs://papb-project-final.appspot.com/user_photos/profiledummy.png");
+    private DatabaseReference registerDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +60,8 @@ public class RegisterActivity extends AppCompatActivity {
         btBack = (Button) findViewById(R.id.btBack);
 
         mAuth = FirebaseAuth.getInstance();
+        firebaseDb = FirebaseDatabase.getInstance(url).getReference();
+        registerDb = firebaseDb.child("users");
 
         btBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,34 +87,18 @@ public class RegisterActivity extends AppCompatActivity {
                                     if (task.isSuccessful()) {
                                         FirebaseUser user = mAuth.getCurrentUser();
                                         String userId = user.getUid();
-
-                                        // Menyimpan data ke Firestore
-                                        FirebaseFirestore db = FirebaseFirestore.getInstance();
-                                        DocumentReference userRef = db.collection("users").document(userId);
-
-                                        Map<String, Object> userData = new HashMap<>();
-                                        userData.put("username", username);
-                                        userData.put("email", email);
-                                        userData.put("phone", phone);
-
-                                        userRef.set(userData)
-                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()) {
-                                                            showMessage("The account has been created");
-                                                        } else {
-                                                            showMessage("Failed to create account: " + task.getException().getMessage());
-                                                        }
-                                                    }
-                                                });
-
-                                        UserProfileChangeRequest profileCreate = new UserProfileChangeRequest.Builder()
-                                                .setDisplayName(username)
-                                                .setPhotoUri(defaultImg)
-                                                .build();
-
-                                        user.updateProfile(profileCreate);
+                                        User registerUser = new User(userId, username,email, phone, defaultImg.toString());
+                                        registerDb.child(userId).setValue(registerUser).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                Toast.makeText(RegisterActivity.this, "Registrasi akun berhasil", Toast.LENGTH_SHORT).show();
+                                                UserProfileChangeRequest profileCreate = new UserProfileChangeRequest.Builder()
+                                                        .setDisplayName(username)
+                                                        .setPhotoUri(defaultImg)
+                                                        .build();
+                                                user.updateProfile(profileCreate);
+                                            }
+                                        });
                                         finish();
                                     }else{
                                         showMessage("Failed to create account" + task.getException().getMessage());
@@ -115,7 +111,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void showMessage(String message) {
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_SHORT).show();
     }
 }
 

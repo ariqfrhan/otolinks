@@ -139,8 +139,6 @@ public class HomeFragment extends Fragment {
 
 
 
-
-
         return view;
     }
     private void getCurrentUser(FirebaseUser user, DocumentReference ref) {
