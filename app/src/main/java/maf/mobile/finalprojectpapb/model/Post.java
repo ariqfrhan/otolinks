@@ -17,6 +17,7 @@ public class Post {
 
     public Post(String userId, String postId, String content, String contentPhoto, String timestamp) {
         this.userId = userId;
+        this.postId = postId;
         this.content = content;
         this.contentPhoto = contentPhoto;
         this.timestamp = timestamp;

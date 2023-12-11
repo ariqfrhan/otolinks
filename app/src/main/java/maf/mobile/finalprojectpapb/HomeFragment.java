@@ -111,7 +111,6 @@ public class HomeFragment extends Fragment {
         }
 
     }
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String userId = user.getUid();

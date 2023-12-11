@@ -36,6 +36,7 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import maf.mobile.finalprojectpapb.R;
+import maf.mobile.finalprojectpapb.activity.DetailPostActivity;
 import maf.mobile.finalprojectpapb.activity.UpdatePostActivity;
 import maf.mobile.finalprojectpapb.model.Post;
 import maf.mobile.finalprojectpapb.model.User;
@@ -97,38 +98,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ItemVH> {
             holder.btDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setTitle("Confirm Delete");
-                    builder.setMessage("Do you want to delete this post?");
-                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            int adapterPosition = holder.getAdapterPosition();
-                            db.child("posts").child(posts.get(adapterPosition).getPostId())
-                                    .removeValue()
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void unused) {
-                                            StorageReference mStorage = FirebaseStorage.getInstance().getReferenceFromUrl(t.getContentPhoto());
-                                            mStorage.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    Toast.makeText(context, "Post deleted", Toast.LENGTH_SHORT).show();
-                                                    notifyItemRemoved(adapterPosition);
-                                                }
-                                            });
-                                        }
-                                    });
-                        }
-                    });
-                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-                    AlertDialog alert = builder.create();
-                    alert.show();
+                    deletePost(holder, t);
                 }
             });
 
@@ -138,13 +108,36 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ItemVH> {
                 public void onClick(View v) {
                     Intent intent = new Intent(context, UpdatePostActivity.class);
                     intent.putExtra("postId", t.getPostId());
+                    intent.putExtra("userId", t.getUserId());
                     context.startActivity(intent);
                 }
             });
         }
 
+        holder.tvContent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, DetailPostActivity.class);
+                intent.putExtra("postId", t.getPostId());
+                intent.putExtra("userId", t.getUserId());
+                context.startActivity(intent);
+            }
+        });
+
+        holder.ivPhotoContent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, DetailPostActivity.class);
+                intent.putExtra("postId", t.getPostId());
+                intent.putExtra("userId", t.getUserId());
+                context.startActivity(intent);
+            }
+        });
+
 
     }
+
+
 
 
     @Override
@@ -172,6 +165,41 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ItemVH> {
             this.btEdit = (android.widget.ImageButton) itemView.findViewById(R.id.btEditRecycler);
             this.btDelete = (android.widget.ImageButton) itemView.findViewById(R.id.btDeleteRecycler);
         }
+    }
+
+    private void deletePost(@NonNull ItemVH holder, Post t) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Confirm Delete");
+        builder.setMessage("Do you want to delete this post?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                int adapterPosition = holder.getAdapterPosition();
+                db.child("posts").child(posts.get(adapterPosition).getPostId())
+                        .removeValue()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                StorageReference mStorage = FirebaseStorage.getInstance().getReferenceFromUrl(t.getContentPhoto());
+                                mStorage.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        Toast.makeText(context, "Post deleted", Toast.LENGTH_SHORT).show();
+                                        notifyItemRemoved(adapterPosition);
+                                    }
+                                });
+                            }
+                        });
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
 }
