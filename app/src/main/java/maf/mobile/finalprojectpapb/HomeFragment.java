@@ -142,12 +142,21 @@ public class HomeFragment extends Fragment {
         rvPost.setLayoutManager(new LinearLayoutManager(getActivity()));
         rvPost.setAdapter(postAdapter);
 
+        ActivityResultLauncher<Intent> mGetImage = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o.getResultCode() == Activity.RESULT_OK && o.getData()!=null) {
+                    selectedImg = o.getData().getData();
+                    imgPost.setImageURI(selectedImg);
+                    imgPost.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
         btImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                ActivityResultLauncher<Intent> mGetImage = getIntentActivityResultLauncher();
                 mGetImage.launch(intent);
             }
         });
@@ -193,7 +202,7 @@ public class HomeFragment extends Fragment {
 
     private void postContent(String content, String userId, String postId, String date, String[] contentPhoto) {
         if (selectedImg != null && selectedImg != Uri.EMPTY) {
-            StorageReference mStorage = FirebaseStorage.getInstance().getReference().child("post_photos").child(userId + System.currentTimeMillis());
+            StorageReference mStorage = FirebaseStorage.getInstance().getReference().child("post_photos").child(postId);
             mStorage.putFile(selectedImg)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -233,20 +242,6 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    @NonNull
-    private ActivityResultLauncher<Intent> getIntentActivityResultLauncher() {
-        ActivityResultLauncher<Intent> mGetImage = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult o) {
-                if (o.getResultCode() == Activity.RESULT_OK && o.getData()!=null) {
-                    selectedImg = o.getData().getData();
-                    imgPost.setImageURI(selectedImg);
-                    imgPost.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-        return mGetImage;
-    }
 
 
     private void getCurrentUser(FirebaseUser user, DatabaseReference dbref) {
