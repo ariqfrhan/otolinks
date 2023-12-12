@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -64,6 +65,7 @@ public class ProfileFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private Uri selectedImg;
+    private ProgressBar progress;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -121,6 +123,7 @@ public class ProfileFragment extends Fragment {
         btLogout = (Button) view.findViewById(R.id.btLogout);
 
         ivProfile = (ImageView) view.findViewById(R.id.ivProfilePicture);
+        progress = (ProgressBar) view.findViewById(R.id.progressBar);
 
 
         getCurrentUser(user, dbref);
@@ -142,40 +145,8 @@ public class ProfileFragment extends Fragment {
                 String phone = etPhone.getText().toString();
                 String username = etUsername.getText().toString();
                 String userId = user.getUid();
-                final Uri[] imgUri = new Uri[1];
-
-                StorageReference mStorage = FirebaseStorage.getInstance().getReference().child("user_photos");
-                StorageReference imagePath = mStorage.child(selectedImg.getLastPathSegment());
-
-                imagePath.putFile(selectedImg).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        imagePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                updateProfileImg(uri, mAuth.getCurrentUser());
-                                imgUri[0] = uri;
-                            }
-                        });
-                    }
-                });
-
-                User updateUser = new User(userId, username, email, phone, imgUri[0].toString());
-                dbref.child("users").orderByChild("id").equalTo(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()) {
-                            dbref.updateChildren((Map<String, Object>) updateUser);
-                            Toast.makeText(getActivity(), "Profile updated", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-
+                String[] imgUri = new String[1];
+                saveProfile(email, phone, username, userId,imgUri);
             }
         });
 
@@ -190,6 +161,48 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
+    private void saveProfile(String email, String phone, String username, String userId, String[] imgUri) {
+        btSave.setVisibility(View.GONE);
+        if (selectedImg != null && selectedImg != Uri.EMPTY) {
+            StorageReference mStorage = FirebaseStorage.getInstance().getReference().child("user_photos").child(userId);
+            mStorage.putFile(selectedImg)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            mStorage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    imgUri[0] = uri.toString();
+                                    updateProfileImg(uri, mAuth.getCurrentUser());
+
+                                    User users = new User(userId, username, email, phone, imgUri[0]);
+                                    dbref.child("users").child(userId).setValue(users).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            showMessage("Profile updated");
+                                            btSave.setVisibility(View.VISIBLE);
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+        }else{
+            Map<String, Object> update = new HashMap<>();
+            update.put("email", email);
+            update.put("phone", phone);
+            update.put("username", username);
+
+            dbref.child("users").child(userId).updateChildren(update).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+                    showMessage("Profile updated");
+                    btSave.setVisibility(View.VISIBLE);
+                }
+            });
+        }
+    }
+
     @NonNull
     private ActivityResultLauncher<Intent> getIntentActivityResultLauncher() {
         ActivityResultLauncher<Intent> mGetImage = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -198,7 +211,6 @@ public class ProfileFragment extends Fragment {
                 if (o.getResultCode() == Activity.RESULT_OK && o.getData() != null) {
                     selectedImg = o.getData().getData();
                     ivProfile.setImageURI(selectedImg);
-                    updateProfileImg(selectedImg, mAuth.getCurrentUser());
                 }
             }
         });
@@ -231,23 +243,11 @@ public class ProfileFragment extends Fragment {
     }
 
     private void updateProfileImg(Uri pickedImg, FirebaseUser currentUser){
-        StorageReference mStorage = FirebaseStorage.getInstance().getReference().child("user_photos/" + System.currentTimeMillis());
-        UploadTask uploadTask =  mStorage.putFile(pickedImg);
-        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                mStorage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
-                                .setPhotoUri(uri)
-                                .build();
+        UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
+                .setPhotoUri(pickedImg)
+                .build();
 
-                        currentUser.updateProfile(profileChangeRequest);
-                    }
-                });
-            }
-        });
+        currentUser.updateProfile(profileChangeRequest);
     }
 
     private void signOut() {
@@ -258,5 +258,8 @@ public class ProfileFragment extends Fragment {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         getActivity().finish();
+    }
+    private void showMessage(String message) {
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 }

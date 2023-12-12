@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
 
         userEmail = (EditText) findViewById(R.id.etEmail);
         userPassword = (EditText) findViewById(R.id.etPassword);
+        progress = findViewById(R.id.progressBar);
 
         login = (Button) findViewById(R.id.btLogin);
 
@@ -46,20 +48,7 @@ public class LoginActivity extends AppCompatActivity {
                 final String email = userEmail.getText().toString();
                 final String pass = userPassword.getText().toString();
 
-                if (email.isEmpty() || pass.isEmpty()) {
-                    Toast.makeText(getApplicationContext(), "Please fill required field", Toast.LENGTH_SHORT);
-                    showMessage("Please fill required field");
-                }else{
-                    mAuth.signInWithEmailAndPassword(email, pass)
-                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
-                                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                    }
-                                }
-                            });
-                }
+                userSignin(email, pass);
             }
         });
 
@@ -70,6 +59,35 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
             }
         });
+    }
+
+    private void userSignin(String email, String pass) {
+        if (email.isEmpty() || pass.isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Please fill required field", Toast.LENGTH_SHORT);
+            showMessage("Please fill required field");
+        }else{
+            login.setVisibility(View.GONE);
+            progress.setVisibility(View.VISIBLE);
+            mAuth.signInWithEmailAndPassword(email, pass)
+                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                login.setVisibility(View.VISIBLE);
+                                progress.setVisibility(View.GONE);
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            userEmail.setError(e.toString());
+                            userPassword.setError(e.toString());
+                            login.setVisibility(View.VISIBLE);
+                            progress.setVisibility(View.GONE);
+                        }
+                    });
+        }
     }
 
     @Override

@@ -55,7 +55,7 @@
             android:backgroundTint="@color/white"
             app:layout_constraintEnd_toStartOf="@+id/btDeleteRecycler"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@android:drawable/ic_menu_edit" />
+            android:src="@drawable/edit_icon" />
 
         <ImageButton
             android:visibility="gone"
@@ -65,7 +65,7 @@
             android:backgroundTint="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@android:drawable/ic_menu_delete" />
+            android:src="@drawable/delete_icon" />
 
         <ImageView
             android:id="@+id/ivPhotoContent"

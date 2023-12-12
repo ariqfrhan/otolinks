@@ -32,8 +32,8 @@ public class MainActivity extends AppCompatActivity {
         binding.bottomNavigationView.setOnItemSelectedListener(item ->{
             if (item.getItemId() == R.id.homeItem){
                 replaceFragment(new HomeFragment());
-            }else if (item.getItemId() == R.id.chatItem){
-                replaceFragment(new ChatFragment());
+//            }else if (item.getItemId() == R.id.chatItem){
+//                replaceFragment(new ChatFragment());
             }else if (item.getItemId() == R.id.profileItem){
                 replaceFragment(new ProfileFragment());
             }

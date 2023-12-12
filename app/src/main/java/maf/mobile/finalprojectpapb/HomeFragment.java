@@ -41,6 +41,8 @@ import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -169,7 +171,11 @@ public class HomeFragment extends Fragment {
                 String date = getDate();
                 String[] contentPhoto = new String[1];
 
-                postContent(content, userId, postId, date, contentPhoto);
+                if (content.isEmpty()) {
+                    etPost.setError("Please fill your messages");
+                }else{
+                    postContent(content, userId, postId, date, contentPhoto);
+                }
             }
         });
 
@@ -180,7 +186,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        postDb.addValueEventListener(new ValueEventListener() {
+        postDb.orderByChild("timestamp").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 postData.clear();
@@ -189,6 +195,12 @@ public class HomeFragment extends Fragment {
                     post.setPostId(postSnapshot.getKey());
                     postData.add(post);
                 }
+                Collections.sort(postData, new Comparator<Post>() {
+                    @Override
+                    public int compare(Post o1, Post o2) {
+                        return o2.getTimestamp().compareTo(o1.getTimestamp());
+                    }
+                });
                 postAdapter.notifyDataSetChanged();
             }
 
@@ -200,6 +212,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void postContent(String content, String userId, String postId, String date, String[] contentPhoto) {
+        btPost.setVisibility(View.GONE);
         if (selectedImg != null && selectedImg != Uri.EMPTY) {
             StorageReference mStorage = FirebaseStorage.getInstance().getReference().child("post_photos").child(postId);
             mStorage.putFile(selectedImg)
@@ -222,6 +235,7 @@ public class HomeFragment extends Fragment {
                                             imgPost.setImageURI(null);
                                             imgPost.setVisibility(View.GONE);
                                         }
+                                        btPost.setVisibility(View.VISIBLE);
                                     }
                                 });
 
@@ -236,6 +250,7 @@ public class HomeFragment extends Fragment {
                 public void onSuccess(Void unused) {
                     showMessage("Successfully Posted");
                     etPost.setText("");
+                    btPost.setVisibility(View.VISIBLE);
                 }
             });
         }
@@ -265,7 +280,7 @@ public class HomeFragment extends Fragment {
     }
 
     private String getDate(){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yy HH:mm");
         return dateFormat.format(new Date());
     }
     private void showMessage(String message) {

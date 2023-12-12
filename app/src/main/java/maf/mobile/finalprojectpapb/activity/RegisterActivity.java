@@ -46,6 +46,7 @@ public class RegisterActivity extends AppCompatActivity {
     private Button btBack;
     private Uri defaultImg = Uri.parse("https://firebasestorage.googleapis.com/v0/b/papb-project-final.appspot.com/o/user_photos%2Fprofiledummy.png?alt=media&token=aca2d042-fa77-44ce-ad4d-ba5052160da4");
     private DatabaseReference registerDb;
+    private ProgressBar progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,7 @@ public class RegisterActivity extends AppCompatActivity {
         regPassword = (EditText) findViewById(R.id.etRegPassword);
         btRegister= (Button) findViewById(R.id.btRegister);
         btBack = (Button) findViewById(R.id.btBack);
+        progress = (ProgressBar) findViewById(R.id.progressBar);
 
         mAuth = FirebaseAuth.getInstance();
         firebaseDb = FirebaseDatabase.getInstance(url).getReference();
@@ -77,37 +79,43 @@ public class RegisterActivity extends AppCompatActivity {
                 final String password = regPassword.getText().toString();
                 final String phone = regPhone.getText().toString();
 
-                if (email.isEmpty() || username.isEmpty() || password.isEmpty() || phone.isEmpty()) {
-                    showMessage("Please fill all fields");
-                }else{
-                    mAuth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
-                                        FirebaseUser user = mAuth.getCurrentUser();
-                                        String userId = user.getUid();
-                                        User registerUser = new User(userId, username,email, phone, defaultImg.toString());
-                                        registerDb.child(userId).setValue(registerUser).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void unused) {
-                                                Toast.makeText(RegisterActivity.this, "Registrasi akun berhasil", Toast.LENGTH_SHORT).show();
-                                                UserProfileChangeRequest profileCreate = new UserProfileChangeRequest.Builder()
-                                                        .setDisplayName(username)
-                                                        .setPhotoUri(defaultImg)
-                                                        .build();
-                                                user.updateProfile(profileCreate);
-                                            }
-                                        });
-                                        finish();
-                                    }else{
-                                        showMessage("Failed to create account" + task.getException().getMessage());
-                                    }
-                                }
-                            });
-                }
+                createAccount(email, username, password, phone);
             }
         });
+    }
+
+    private void createAccount(String email, String username, String password, String phone) {
+        if (email.isEmpty() || username.isEmpty() || password.isEmpty() || phone.isEmpty()) {
+            showMessage("Please fill all fields");
+        }else{
+            btRegister.setVisibility(View.GONE);
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                String userId = user.getUid();
+                                User registerUser = new User(userId, username, email, phone, defaultImg.toString());
+                                registerDb.child(userId).setValue(registerUser).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        Toast.makeText(RegisterActivity.this, "Registrasi akun berhasil", Toast.LENGTH_SHORT).show();
+                                        UserProfileChangeRequest profileCreate = new UserProfileChangeRequest.Builder()
+                                                .setDisplayName(username)
+                                                .setPhotoUri(defaultImg)
+                                                .build();
+                                        user.updateProfile(profileCreate);
+                                    }
+                                });
+                                finish();
+                            }else{
+                                showMessage("Failed to create account" + task.getException().getMessage());
+                                btRegister.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    });
+        }
     }
 
     private void showMessage(String message) {

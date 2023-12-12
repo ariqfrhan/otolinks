@@ -180,14 +180,19 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ItemVH> {
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                StorageReference mStorage = FirebaseStorage.getInstance().getReferenceFromUrl(t.getContentPhoto());
-                                mStorage.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        Toast.makeText(context, "Post deleted", Toast.LENGTH_SHORT).show();
-                                        notifyItemRemoved(adapterPosition);
-                                    }
-                                });
+                                if (t.getContentPhoto() != null && !t.getContentPhoto().isEmpty()) {
+                                    StorageReference mStorage = FirebaseStorage.getInstance().getReferenceFromUrl(t.getContentPhoto());
+                                    mStorage.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            Toast.makeText(context, "Post deleted", Toast.LENGTH_SHORT).show();
+                                            notifyItemRemoved(adapterPosition);
+                                        }
+                                    });
+                                }else{
+                                    Toast.makeText(context, "Post deleted", Toast.LENGTH_SHORT).show();
+                                    notifyItemRemoved(adapterPosition);
+                                }
                             }
                         });
             }
