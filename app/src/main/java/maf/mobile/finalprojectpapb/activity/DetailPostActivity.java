@@ -73,7 +73,6 @@ public class DetailPostActivity extends AppCompatActivity {
         ivPhotoContent = (ImageView) findViewById(R.id.ivPhotoContentDetail);
         rvComment = (RecyclerView) findViewById(R.id.rvComment);
 
-        commentDb = detailDb.child("comment");
 
         this.postId = getIntent().getStringExtra("postId");
         this.userId = getIntent().getStringExtra("userId");
@@ -81,6 +80,7 @@ public class DetailPostActivity extends AppCompatActivity {
         if (postId == null) {
             finish();
         }
+        commentDb = detailDb.child("posts").child(postId).child("comments");
 
         commentData = new ArrayList<>();
         commentAdapter = new CommentAdapter(this, commentData, user);
