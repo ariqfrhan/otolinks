@@ -46,6 +46,7 @@ public class RegisterActivity extends AppCompatActivity {
     private Button btBack;
     private Uri defaultImg = Uri.parse("https://firebasestorage.googleapis.com/v0/b/papb-project-final.appspot.com/o/user_photos%2Fprofiledummy.png?alt=media&token=aca2d042-fa77-44ce-ad4d-ba5052160da4");
     private DatabaseReference registerDb;
+    private ProgressBar progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,7 @@ public class RegisterActivity extends AppCompatActivity {
         regPassword = (EditText) findViewById(R.id.etRegPassword);
         btRegister= (Button) findViewById(R.id.btRegister);
         btBack = (Button) findViewById(R.id.btBack);
+        progress = (ProgressBar) findViewById(R.id.progressBar);
 
         mAuth = FirebaseAuth.getInstance();
         firebaseDb = FirebaseDatabase.getInstance(url).getReference();
@@ -86,6 +88,7 @@ public class RegisterActivity extends AppCompatActivity {
         if (email.isEmpty() || username.isEmpty() || password.isEmpty() || phone.isEmpty()) {
             showMessage("Please fill all fields");
         }else{
+            btRegister.setVisibility(View.GONE);
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
                         @Override
@@ -108,6 +111,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 finish();
                             }else{
                                 showMessage("Failed to create account" + task.getException().getMessage());
+                                btRegister.setVisibility(View.VISIBLE);
                             }
                         }
                     });

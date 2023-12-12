@@ -49,12 +49,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="240dp"
                 tools:src="@drawable/profiledummy"/>
-            <Button
-                android:id="@+id/btPost"
+            <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Post"
-                app:cornerRadius="10dp" />
+
+                android:id="@+id/LinearButton"
+                app:layout_constraintTop_toBottomOf="@+id/etRegPassword"
+                android:orientation="horizontal">
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/primary"
+                    />
+                <Button
+                    android:id="@+id/btPost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Post"
+                    app:cornerRadius="10dp" />
+            </FrameLayout>
 
 
         </LinearLayout>

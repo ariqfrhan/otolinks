@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -64,6 +65,7 @@ public class ProfileFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private Uri selectedImg;
+    private ProgressBar progress;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -121,6 +123,7 @@ public class ProfileFragment extends Fragment {
         btLogout = (Button) view.findViewById(R.id.btLogout);
 
         ivProfile = (ImageView) view.findViewById(R.id.ivProfilePicture);
+        progress = (ProgressBar) view.findViewById(R.id.progressBar);
 
 
         getCurrentUser(user, dbref);
@@ -159,6 +162,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void saveProfile(String email, String phone, String username, String userId, String[] imgUri) {
+        btSave.setVisibility(View.GONE);
         if (selectedImg != null && selectedImg != Uri.EMPTY) {
             StorageReference mStorage = FirebaseStorage.getInstance().getReference().child("user_photos").child(userId);
             mStorage.putFile(selectedImg)
@@ -176,13 +180,26 @@ public class ProfileFragment extends Fragment {
                                         @Override
                                         public void onSuccess(Void unused) {
                                             showMessage("Profile updated");
+                                            btSave.setVisibility(View.VISIBLE);
                                         }
                                     });
                                 }
                             });
                         }
                     });
+        }else{
+            Map<String, Object> update = new HashMap<>();
+            update.put("email", email);
+            update.put("phone", phone);
+            update.put("username", username);
 
+            dbref.child("users").child(userId).updateChildren(update).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+                    showMessage("Profile updated");
+                    btSave.setVisibility(View.VISIBLE);
+                }
+            });
         }
     }
 
