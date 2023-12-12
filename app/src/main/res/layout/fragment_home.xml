@@ -1,17 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#3D7C98"
+    android:background="@color/white"
     tools:context=".HomeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/postLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/home_fragment"
-        android:textSize="26sp"
-        android:layout_gravity="center"/>
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:weightSum="6"
+        tools:ignore="MissingConstraints">
 
-</FrameLayout>
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/tvProfile"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            app:civ_border_color="@color/primary"
+            app:civ_border_width="3dp"
+            tools:src="@drawable/profiledummy" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:gravity="right"
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/etPost"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:ems="10"
+                android:padding="8dp"
+                android:hint="Write Something"
+                android:inputType="textMultiLine"
+                android:background="@drawable/custom_input"
+                />
+            <ImageView
+                android:id="@+id/imgPost"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                tools:src="@drawable/profiledummy"/>
+            <Button
+                android:id="@+id/btPost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Post"
+                app:cornerRadius="10dp" />
+
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imageView5"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/baseline_image_24" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postLayout"
+        />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

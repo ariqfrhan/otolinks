@@ -29,17 +29,24 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import maf.mobile.finalprojectpapb.activity.LoginActivity;
+import maf.mobile.finalprojectpapb.model.User;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -88,8 +95,11 @@ public class ProfileFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
-
-    FirebaseAuth mAuth;
+    private String url = "https://papb-project-final-default-rtdb.asia-southeast1.firebasedatabase.app/";
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private String userId = user.getUid();
+    DatabaseReference dbref = FirebaseDatabase.getInstance(url).getReference();
     private EditText etEmail;
     private EditText etPhone;
     private EditText etUsername;
@@ -103,12 +113,6 @@ public class ProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        mAuth = FirebaseAuth.getInstance();
-        String userId = user.getUid();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference ref = db.collection("users").document(userId);
-
         etEmail = (EditText) view.findViewById(R.id.etProfileEmail);
         etPhone = (EditText) view.findViewById(R.id.etProfilePhone);
         etUsername = (EditText) view.findViewById(R.id.etProfileUsername);
@@ -119,7 +123,7 @@ public class ProfileFragment extends Fragment {
         ivProfile = (ImageView) view.findViewById(R.id.ivProfilePicture);
 
 
-        getCurrentUser(user, ref);
+        getCurrentUser(user, dbref);
 
         ActivityResultLauncher<Intent> mGetImage = getIntentActivityResultLauncher();
 
@@ -137,6 +141,8 @@ public class ProfileFragment extends Fragment {
                 String email = etEmail.getText().toString();
                 String phone = etPhone.getText().toString();
                 String username = etUsername.getText().toString();
+                String userId = user.getUid();
+                final Uri[] imgUri = new Uri[1];
 
                 StorageReference mStorage = FirebaseStorage.getInstance().getReference().child("user_photos");
                 StorageReference imagePath = mStorage.child(selectedImg.getLastPathSegment());
@@ -148,26 +154,28 @@ public class ProfileFragment extends Fragment {
                             @Override
                             public void onSuccess(Uri uri) {
                                 updateProfileImg(uri, mAuth.getCurrentUser());
+                                imgUri[0] = uri;
                             }
                         });
                     }
                 });
 
-                Map<String, Object> userData = new HashMap<>();
-                userData.put("username", username);
-                userData.put("email", email);
-                userData.put("phone", phone);
+                User updateUser = new User(userId, username, email, phone, imgUri[0].toString());
+                dbref.child("users").orderByChild("id").equalTo(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            dbref.updateChildren((Map<String, Object>) updateUser);
+                            Toast.makeText(getActivity(), "Profile updated", Toast.LENGTH_SHORT).show();
+                        }
+                    }
 
-                ref.set(userData)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
 
-                                } else {
-                                }
-                            }
-                        });
+                    }
+                });
+
             }
         });
 
@@ -197,21 +205,29 @@ public class ProfileFragment extends Fragment {
         return mGetImage;
     }
 
-    private void getCurrentUser(FirebaseUser user, DocumentReference ref) {
-        if (user != null) {
-            etEmail.setText(user.getEmail());
-            etUsername.setText(user.getDisplayName());
-            ivProfile.setImageURI(user.getPhotoUrl());
-            ref.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    if (documentSnapshot.exists()) {
-                        String phone = documentSnapshot.getString("phone");
-                        etPhone.setText(phone);
+    private void getCurrentUser(FirebaseUser user, DatabaseReference dbref) {
+        dbref.child("users").orderByChild("id").equalTo(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for(DataSnapshot dataSnapshot : snapshot.getChildren()){
+                        User currentUser =  dataSnapshot.getValue(User.class);
+                        if (currentUser != null) {
+                            etEmail.setText(currentUser.getEmail());
+                            etUsername.setText(currentUser.getUsername());
+                            Uri photoUrl = Uri.parse(currentUser.getImgUrl());
+                            Picasso.get().load(user.getPhotoUrl()).into(ivProfile);
+                            etPhone.setText(currentUser.getPhone());
+                        }
                     }
                 }
-            });
-        }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void updateProfileImg(Uri pickedImg, FirebaseUser currentUser){
@@ -232,22 +248,6 @@ public class ProfileFragment extends Fragment {
                 });
             }
         });
-//        StorageReference imagePath = mStorage.child(pickedImg.getLastPathSegment());
-//        imagePath.putFile(pickedImg).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//            @Override
-//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                imagePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-//                    @Override
-//                    public void onSuccess(Uri uri) {
-//                        UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
-//                                .setPhotoUri(uri)
-//                                .build();
-//
-//                        currentUser.updateProfile(profileChangeRequest);
-//                    }
-//                });
-//            }
-//        });
     }
 
     private void signOut() {
@@ -259,5 +259,4 @@ public class ProfileFragment extends Fragment {
         startActivity(intent);
         getActivity().finish();
     }
-
 }
