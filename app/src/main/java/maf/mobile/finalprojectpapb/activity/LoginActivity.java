@@ -46,20 +46,7 @@ public class LoginActivity extends AppCompatActivity {
                 final String email = userEmail.getText().toString();
                 final String pass = userPassword.getText().toString();
 
-                if (email.isEmpty() || pass.isEmpty()) {
-                    Toast.makeText(getApplicationContext(), "Please fill required field", Toast.LENGTH_SHORT);
-                    showMessage("Please fill required field");
-                }else{
-                    mAuth.signInWithEmailAndPassword(email, pass)
-                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
-                                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                    }
-                                }
-                            });
-                }
+                userSignin(email, pass);
             }
         });
 
@@ -70,6 +57,23 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
             }
         });
+    }
+
+    private void userSignin(String email, String pass) {
+        if (email.isEmpty() || pass.isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Please fill required field", Toast.LENGTH_SHORT);
+            showMessage("Please fill required field");
+        }else{
+            mAuth.signInWithEmailAndPassword(email, pass)
+                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            }
+                        }
+                    });
+        }
     }
 
     @Override

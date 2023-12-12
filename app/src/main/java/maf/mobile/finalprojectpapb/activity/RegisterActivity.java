@@ -77,37 +77,41 @@ public class RegisterActivity extends AppCompatActivity {
                 final String password = regPassword.getText().toString();
                 final String phone = regPhone.getText().toString();
 
-                if (email.isEmpty() || username.isEmpty() || password.isEmpty() || phone.isEmpty()) {
-                    showMessage("Please fill all fields");
-                }else{
-                    mAuth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
-                                        FirebaseUser user = mAuth.getCurrentUser();
-                                        String userId = user.getUid();
-                                        User registerUser = new User(userId, username,email, phone, defaultImg.toString());
-                                        registerDb.child(userId).setValue(registerUser).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void unused) {
-                                                Toast.makeText(RegisterActivity.this, "Registrasi akun berhasil", Toast.LENGTH_SHORT).show();
-                                                UserProfileChangeRequest profileCreate = new UserProfileChangeRequest.Builder()
-                                                        .setDisplayName(username)
-                                                        .setPhotoUri(defaultImg)
-                                                        .build();
-                                                user.updateProfile(profileCreate);
-                                            }
-                                        });
-                                        finish();
-                                    }else{
-                                        showMessage("Failed to create account" + task.getException().getMessage());
-                                    }
-                                }
-                            });
-                }
+                createAccount(email, username, password, phone);
             }
         });
+    }
+
+    private void createAccount(String email, String username, String password, String phone) {
+        if (email.isEmpty() || username.isEmpty() || password.isEmpty() || phone.isEmpty()) {
+            showMessage("Please fill all fields");
+        }else{
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                String userId = user.getUid();
+                                User registerUser = new User(userId, username, email, phone, defaultImg.toString());
+                                registerDb.child(userId).setValue(registerUser).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        Toast.makeText(RegisterActivity.this, "Registrasi akun berhasil", Toast.LENGTH_SHORT).show();
+                                        UserProfileChangeRequest profileCreate = new UserProfileChangeRequest.Builder()
+                                                .setDisplayName(username)
+                                                .setPhotoUri(defaultImg)
+                                                .build();
+                                        user.updateProfile(profileCreate);
+                                    }
+                                });
+                                finish();
+                            }else{
+                                showMessage("Failed to create account" + task.getException().getMessage());
+                            }
+                        }
+                    });
+        }
     }
 
     private void showMessage(String message) {

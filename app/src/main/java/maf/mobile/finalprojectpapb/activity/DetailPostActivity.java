@@ -88,48 +88,8 @@ public class DetailPostActivity extends AppCompatActivity {
         rvComment.setAdapter(commentAdapter);
 
 
-
-        detailDb.child("posts").orderByChild("postId").equalTo(postId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    for(DataSnapshot postSnapshot : snapshot.getChildren()){
-                        Post post = postSnapshot.getValue(Post.class);
-                        if (post.getContentPhoto() !=null && !post.getContentPhoto().isEmpty()) {
-                            String imgUrl = post.getContentPhoto();
-                            Picasso.get().load(imgUrl).into(ivPhotoContent);
-                            ivPhotoContent.setVisibility(View.VISIBLE);
-                        }
-                        tvContent.setText(post.getContent());
-                        tvDate.setText(post.getTimestamp());
-                    }
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        detailDb.child("users").orderByChild("id").equalTo(userId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    for (DataSnapshot userSnapshot: snapshot.getChildren()) {
-                        User users = userSnapshot.getValue(User.class);
-                        if (users!=null) {
-                            tvProfile.setText("@"+users.getUsername());
-                            Picasso.get().load(users.getImgUrl()).into(ivProfile);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+        getPostData();
+        getUserData();
 
         btComment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,6 +111,52 @@ public class DetailPostActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void getUserData() {
+        detailDb.child("users").orderByChild("id").equalTo(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot userSnapshot: snapshot.getChildren()) {
+                        User users = userSnapshot.getValue(User.class);
+                        if (users!=null) {
+                            tvProfile.setText("@"+users.getUsername());
+                            Picasso.get().load(users.getImgUrl()).into(ivProfile);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void getPostData() {
+        detailDb.child("posts").orderByChild("postId").equalTo(postId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for(DataSnapshot postSnapshot : snapshot.getChildren()){
+                        Post post = postSnapshot.getValue(Post.class);
+                        if (post.getContentPhoto() !=null && !post.getContentPhoto().isEmpty()) {
+                            String imgUrl = post.getContentPhoto();
+                            Picasso.get().load(imgUrl).into(ivPhotoContent);
+                            ivPhotoContent.setVisibility(View.VISIBLE);
+                        }
+                        tvContent.setText(post.getContent());
+                        tvDate.setText(post.getTimestamp());
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     @Override
