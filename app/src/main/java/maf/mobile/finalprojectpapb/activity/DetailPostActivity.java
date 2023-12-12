@@ -182,7 +182,7 @@ public class DetailPostActivity extends AppCompatActivity {
     }
 
     private String getDate(){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yy HH:mm");
         return dateFormat.format(new Date());
     }
     private void showMessage(String message) {
